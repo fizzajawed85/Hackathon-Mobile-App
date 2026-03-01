@@ -26,6 +26,40 @@ A premium medical management mobile application built with **React Native** and 
     - 🌙 **Sleep Tracking**: Keep track of your rest cycles.
     - 💓 **Vital Signs**: BPM and BP snapshot summaries.
 
+### 🔔 Smart Notification System
+- **Context-Aware Alerts**: Get notified instantly for:
+    - New appointment confirmations.
+    - Cancellation updates.
+    - Medical record uploads.
+- **Unread Tracking**: Dedicated Notification Screen with unread indicators and "Mark all as Read" functionality.
+- **Deep Linking**: Tap notifications to jump directly to the relevant record or appointment.
+
+### 📱 Full App Map (19 Screens)
+
+#### Authentication Module
+- **Welcome**: Dynamic entry point with premium animations.
+- **Login / Register**: Secure entry with validation and social UI.
+- **Forgot Password / OTP / Reset**: Complete 3-step recovery flow.
+
+#### Core Healthcare
+- **Dashboard**: Central hub for stats, next visits, and quick actions.
+- **Book Appointment**: Wizard-style flow for doctor & time selection.
+- **Booking Confirmation**: Success state with summary and next steps.
+- **Upcoming Visits**: Active management of pending and upcoming consultations.
+- **Visit History**: Persistent log of all past medical interactions.
+- **Medical Records**: Secure vault for lab reports and prescriptions.
+- **Add/Edit Record**: Form with file attachment and category support.
+
+#### Advanced Features
+- **MedBot AI**: Interactive chat for medical expert or personal assistance.
+- **Health Scanner**: Pulse and BP measurement technology demo.
+- **Smart Notifications**: Dedicated center for all account alerts.
+
+#### Settings & Support
+- **Profile**: Account management, theme toggle, and preferences.
+- **Language Selection**: 7-Language switcher (RTL auto-detection).
+- **Help & Support**: FAQ and concierge contact information.
+
 ### 💓 Health Scanners (Tech Demo)
 - **Heart Rate Monitor**: Pulse analysis using camera and flash.
 - **BP Scanner**: Blood pressure estimation demo.
