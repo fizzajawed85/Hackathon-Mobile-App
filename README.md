@@ -234,7 +234,7 @@ mobile/
 2. **Configure Backend URL**:
    Edit `src/constants/Config.ts`:
    ```typescript
-   export const MACHINE_IP = '192.168.x.x'; // Your PC's local IP
+   export const MACHINE_IP = '---.---.x.x'; // Your PC's local IP
    export const API_BASE_URL = `http://${MACHINE_IP}:5000/api`;
    ```
 
