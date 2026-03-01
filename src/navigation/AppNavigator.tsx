@@ -22,6 +22,8 @@ import BookingConfirmationScreen from '../pages/BookingConfirmationScreen';
 import HelpSupportScreen from '../pages/HelpSupportScreen';
 import NotificationScreen from '../pages/NotificationScreen';
 import ConsultationBotScreen from '../pages/ConsultationBotScreen';
+import HealthScannerScreen from '../pages/HealthScannerScreen';
+import LanguageSelectionScreen from '../pages/LanguageSelectionScreen';
 
 import { RootStackParamList } from '../types/navigation';
 
@@ -33,29 +35,29 @@ const AppNavigator = () => {
   if (loading) return null;
 
   return (
-    <Stack.Navigator 
-      screenOptions={{ headerShown: false }} 
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
       initialRouteName={user ? "MainTabs" : "Welcome"}
     >
       {user ? (
         <>
-          <Stack.Screen name="MainTabs"            component={TabNavigator} />
+          <Stack.Screen name="MainTabs" component={TabNavigator} />
           {/* Individual screens only if they need to be opened as full-screen modals or are NOT in tabs */}
-          <Stack.Screen name="AppointmentHistory"   component={AppointmentHistoryScreen} />
-          <Stack.Screen name="BookAppointment"      component={BookAppointmentScreen} />
-          <Stack.Screen name="BookingConfirmation"  component={BookingConfirmationScreen} />
-          <Stack.Screen name="HelpSupport"          component={HelpSupportScreen} />
-          <Stack.Screen name="MedicalRecords"       component={MedicalRecordsScreen} />
-          <Stack.Screen name="Notifications"        component={NotificationScreen} />
-          <Stack.Screen name="ConsultationBot"      component={ConsultationBotScreen} />
+          <Stack.Screen name="BookAppointment" component={BookAppointmentScreen} />
+          <Stack.Screen name="BookingConfirmation" component={BookingConfirmationScreen} />
+          <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
+          <Stack.Screen name="Notifications" component={NotificationScreen} />
+          <Stack.Screen name="ConsultationBot" component={ConsultationBotScreen} />
+          <Stack.Screen name="HealthScanner" component={HealthScannerScreen} />
+          <Stack.Screen name="LanguageSelection" component={LanguageSelectionScreen} />
         </>
       ) : (
         <>
-          <Stack.Screen name="Welcome"       component={WelcomeScreen} />
-          <Stack.Screen name="Login"         component={LoginScreen} />
-          <Stack.Screen name="Register"      component={RegisterScreen} />
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-          <Stack.Screen name="VerifyOtp"     component={VerifyOtpScreen} />
+          <Stack.Screen name="VerifyOtp" component={VerifyOtpScreen} />
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         </>
       )}

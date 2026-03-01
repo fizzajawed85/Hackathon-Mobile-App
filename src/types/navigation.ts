@@ -26,6 +26,8 @@ export type RootStackParamList = {
     Notifications: undefined;
     ConsultationBot: undefined;
     EditProfile: undefined;
+    HealthScanner: undefined;
+    LanguageSelection: undefined;
 
     // Legacy mapping (to prevent crash if called)
     Dashboard: undefined;

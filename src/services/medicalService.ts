@@ -77,6 +77,7 @@ export const updateUserProfile = async (data: {
     phoneNumber?: string;
     location?: string;
     about?: string;
+    profileImage?: string;
 }) => {
     const client = await makeClient();
     const res = await client.put('/api/user/update', data);
@@ -97,6 +98,16 @@ export const addMedicalRecord = async (data: {
 }) => {
     const client = await makeClient();
     const res = await client.post('/api/records/add', data);
+    return res.data;
+};
+
+export const updateMedicalRecord = async (id: string, data: {
+    title: string;
+    description?: string;
+    recordType?: string;
+}) => {
+    const client = await makeClient();
+    const res = await client.put(`/api/records/${id}`, data);
     return res.data;
 };
 

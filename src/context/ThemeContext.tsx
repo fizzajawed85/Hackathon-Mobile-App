@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useColorScheme } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 
 type ThemeMode = 'light' | 'dark';
@@ -25,9 +25,9 @@ const lightColors: ThemeColors = {
   text: '#1e293b',
   secondaryText: '#64748b',
   border: '#e2e8f0',
-  primary: '#6366f1', // Indigo-500 for brand consistency
-  secondary: '#4f46e5', // Indigo-600
-  accent: '#f5f3ff', // Very light violet
+  primary: '#6366f1', // Original Indigo
+  secondary: '#4f46e5', 
+  accent: '#f5f3ff', 
   success: '#10b981',
   warning: '#f59e0b',
   danger: '#f43f5e',
@@ -35,14 +35,14 @@ const lightColors: ThemeColors = {
 };
 
 const darkColors: ThemeColors = {
-  background: '#0a0f1d', // deeper midnight blue
-  card: '#161e31', // subtle dark-blue cards
+  background: '#0f111a', // Deep Indigo/Navy Background
+  card: '#1a1c2e', // Matching Indigo Card
   text: '#f8fafc',
   secondaryText: '#94a3b8',
   border: '#1e293b',
-  primary: '#6366f1', // Premium Indigo
-  secondary: '#818cf8',
-  accent: '#161e31', // matches card for glass feel
+  primary: '#6366f1', // Original Indigo
+  secondary: '#818cf8', // Indigo-400
+  accent: '#1a1c2e', 
   success: '#10b981',
   warning: '#f59e0b',
   danger: '#f43f5e',
@@ -65,8 +65,7 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const systemColorScheme = useColorScheme();
-  const [mode, setMode] = useState<ThemeMode>(systemColorScheme === 'dark' ? 'dark' : 'light');
+  const [mode, setMode] = useState<ThemeMode>('dark');
 
   useEffect(() => {
     const loadTheme = async () => {

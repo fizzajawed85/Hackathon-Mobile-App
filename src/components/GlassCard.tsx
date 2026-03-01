@@ -1,4 +1,5 @@
 import { View, StyleSheet, ViewProps } from 'react-native';
+import React, { memo } from 'react';
 import { BlurView } from 'expo-blur';
 import { useTheme } from '../context/ThemeContext';
 
@@ -7,7 +8,7 @@ interface GlassCardProps extends ViewProps {
   intensity?: number;
 }
 
-const GlassCard: React.FC<GlassCardProps> = ({ children, intensity = 20, style, ...props }) => {
+const GlassCard: React.FC<GlassCardProps> = memo(({ children, intensity = 20, style, ...props }) => {
   const { isDark, colors } = useTheme();
   
   return (
@@ -15,8 +16,8 @@ const GlassCard: React.FC<GlassCardProps> = ({ children, intensity = 20, style, 
       style={[
         styles.container, 
         { 
-          backgroundColor: isDark ? 'rgba(30, 41, 59, 0.4)' : 'rgba(255, 255, 255, 0.7)',
-          borderColor: isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(226, 232, 240, 0.8)',
+          backgroundColor: isDark ? 'rgba(30, 41, 59, 0.45)' : 'rgba(255, 255, 255, 0.75)',
+          borderColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
         },
         style
       ]} 
@@ -29,7 +30,7 @@ const GlassCard: React.FC<GlassCardProps> = ({ children, intensity = 20, style, 
       </BlurView>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

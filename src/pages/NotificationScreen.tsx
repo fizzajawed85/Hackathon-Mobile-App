@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
   View,
   Text,
@@ -7,18 +7,21 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  StatusBar
+  StatusBar,
+  Platform
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import Layout from '../components/Layout';
 import GlassCard from '../components/GlassCard';
-import { 
-  ChevronLeft, 
-  Bell, 
-  Calendar, 
-  ClipboardList, 
-  Info, 
+import Header from '../components/Header';
+import { useLanguage } from '../context/LanguageContext';
+import {
+  ChevronLeft,
+  Bell,
+  Calendar,
+  ClipboardList,
+  Info,
   CheckCircle2,
   Trash2,
   MailOpen
@@ -26,17 +29,68 @@ import {
 import { getNotifications, markNotificationsRead, markNotificationRead } from '../services/medicalService';
 
 interface Notification {
-  id: string;
+  _id: string;
+  id?: string;
   title: string;
   message: string;
   type: 'appointment' | 'record' | 'general';
-  read: boolean;
+  isRead: boolean;
   createdAt: string;
 }
+
+const NotificationItem = memo(({ item, colors, isDark, onPress, t, isRTL }: any) => {
+  const getIcon = (type: string, isRead: boolean) => {
+    const iconSize = 22;
+    const color = isRead ? colors.secondaryText : colors.primary;
+    switch (type) {
+      case 'appointment': return <Calendar color={color} size={iconSize} />;
+      case 'record': return <ClipboardList color={color} size={iconSize} />;
+      default: return <Info color={color} size={iconSize} />;
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => onPress(item)}
+      style={styles.notificationWrapper}
+    >
+      <GlassCard
+        style={[
+          styles.notificationCard,
+          !item.isRead && { borderColor: colors.primary + '30', borderWidth: 1 },
+          { flexDirection: isRTL ? 'row-reverse' : 'row' }
+        ]}
+        intensity={item.isRead ? 20 : 40}
+      >
+        <View style={[
+          styles.iconContainer,
+          { backgroundColor: item.isRead ? (isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6') : colors.primary + '15' },
+          { [isRTL ? 'marginLeft' : 'marginRight']: 16 }
+        ]}>
+          {getIcon(item.type, item.isRead)}
+        </View>
+        <View style={[styles.content, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+          <View style={[styles.topRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <Text style={[styles.title, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }, !item.isRead && { fontWeight: '800' }]}>{item.title}</Text>
+            {!item.isRead && <View style={[styles.unreadDot, { backgroundColor: colors.primary }]} />}
+          </View>
+          <Text style={[styles.message, { color: colors.secondaryText, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={2}>
+            {item.message}
+          </Text>
+          <Text style={[styles.date, { color: colors.muted, textAlign: isRTL ? 'right' : 'left' }]}>
+            {new Date(item.createdAt).toLocaleDateString()} • {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Text>
+        </View>
+      </GlassCard>
+    </TouchableOpacity>
+  );
+});
 
 const NotificationScreen = () => {
   const navigation = useNavigation<any>();
   const { colors, isDark } = useTheme();
+  const { t, isRTL } = useLanguage();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -74,17 +128,17 @@ const NotificationScreen = () => {
   };
 
   const handleNotificationPress = async (item: Notification) => {
-    if (!item.read) {
+    if (!item.isRead) {
       try {
-        await markNotificationRead(item.id);
-        setNotifications(prev => 
-          prev.map(n => n.id === item.id ? { ...n, read: true } : n)
+        await markNotificationRead(item._id);
+        setNotifications(prev =>
+          prev.map(n => n._id === item._id ? { ...n, isRead: true } : n)
         );
       } catch (err) {
         console.error('Error marking read:', err);
       }
     }
-    
+
     // Optional: Navigate based on type
     if (item.type === 'appointment') {
       navigation.navigate('MainTabs', { screen: 'Visits' });
@@ -93,57 +147,30 @@ const NotificationScreen = () => {
     }
   };
 
-  const getIcon = (type: string, read: boolean) => {
-    const iconSize = 22;
-    const color = read ? colors.secondaryText : colors.primary;
-    
-    switch (type) {
-      case 'appointment': return <Calendar color={color} size={iconSize} />;
-      case 'record': return <ClipboardList color={color} size={iconSize} />;
-      default: return <Info color={color} size={iconSize} />;
-    }
-  };
 
-  const renderItem = ({ item }: { item: Notification }) => (
-    <TouchableOpacity 
-      activeOpacity={0.7}
-      onPress={() => handleNotificationPress(item)}
-      style={styles.notificationWrapper}
-    >
-      <GlassCard 
-        style={[styles.notificationCard, !item.read && { borderColor: colors.primary + '30', borderWidth: 1 }]} 
-        intensity={item.read ? 20 : 40}
-      >
-        <View style={[styles.iconContainer, { backgroundColor: item.read ? (isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6') : colors.primary + '15' }]}>
-          {getIcon(item.type, item.read)}
-        </View>
-        <View style={styles.content}>
-          <View style={styles.topRow}>
-            <Text style={[styles.title, { color: colors.text }, !item.read && { fontWeight: '800' }]}>{item.title}</Text>
-            {!item.read && <View style={[styles.unreadDot, { backgroundColor: colors.primary }]} />}
-          </View>
-          <Text style={[styles.message, { color: colors.secondaryText }]} numberOfLines={2}>
-            {item.message}
-          </Text>
-          <Text style={[styles.date, { color: colors.muted }]}>
-            {new Date(item.createdAt).toLocaleDateString()} • {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </Text>
-        </View>
-      </GlassCard>
-    </TouchableOpacity>
-  );
+  const onPressNotification = useCallback((item: Notification) => handleNotificationPress(item), []);
+
+  const renderItem = useCallback(({ item }: { item: Notification }) => (
+    <NotificationItem
+      item={item}
+      colors={colors}
+      isDark={isDark}
+      onPress={onPressNotification}
+      t={t}
+      isRTL={isRTL}
+    />
+  ), [colors, isDark, onPressNotification, t, isRTL]);
 
   return (
     <Layout>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <ChevronLeft color={colors.text} size={28} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Notifications</Text>
-        <TouchableOpacity onPress={handleMarkAllRead} style={styles.actionBtn}>
-          <MailOpen color={colors.primary} size={22} />
-        </TouchableOpacity>
-      </View>
+      <Header
+        title={t('notifications.title')}
+        rightElement={
+          <TouchableOpacity onPress={handleMarkAllRead} style={[styles.backButton, { backgroundColor: colors.card + '50' }]}>
+            <MailOpen color={colors.primary} size={22} />
+          </TouchableOpacity>
+        }
+      />
 
       {loading ? (
         <View style={styles.center}>
@@ -154,18 +181,22 @@ const NotificationScreen = () => {
           <View style={[styles.emptyIconContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6' }]}>
             <Bell color={colors.muted} size={40} />
           </View>
-          <Text style={[styles.emptyTitle, { color: colors.text }]}>All Caught Up!</Text>
-          <Text style={[styles.emptyText, { color: colors.secondaryText }]}>You have no new notifications.</Text>
+          <Text style={[styles.emptyTitle, { color: colors.text, textAlign: 'center' }]}>{t('notifications.empty')}</Text>
+          <Text style={[styles.emptyText, { color: colors.secondaryText, textAlign: 'center' }]}>{t('notifications.emptyDesc')}</Text>
         </View>
       ) : (
         <FlatList
           data={notifications}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item._id}
           renderItem={renderItem}
           contentContainerStyle={styles.list}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />
           }
+          initialNumToRender={10}
+          windowSize={5}
+          maxToRenderPerBatch={10}
+          removeClippedSubviews={Platform.OS === 'android'}
         />
       )}
     </Layout>
@@ -182,6 +213,15 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   backBtn: { padding: 5 },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
   headerTitle: { fontSize: 20, fontWeight: '800', letterSpacing: -0.5 },
   actionBtn: { padding: 5 },
 

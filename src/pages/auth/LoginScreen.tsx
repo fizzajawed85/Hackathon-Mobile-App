@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions, Platform, StatusBar, ScrollView, KeyboardAvoidingView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
@@ -10,7 +10,10 @@ import Button from '../../components/Button';
 import Layout from '../../components/Layout';
 import SocialLogins from '../../components/SocialLogins';
 import { useTheme } from '../../context/ThemeContext';
-import { Activity, ArrowRight } from 'lucide-react-native';
+import { useToast } from '../../context/ToastContext';
+import Logo from '../../components/Logo';
+import { useLanguage } from '../../context/LanguageContext';
+import { ArrowRight, LogIn } from 'lucide-react-native';
 
 const { height } = Dimensions.get('window');
 
@@ -20,23 +23,26 @@ const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { login } = useAuth();
   const { colors, isDark } = useTheme();
-  
+  const { t } = useLanguage();
+  const { showToast } = useToast();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password');
+      showToast({ message: t('auth.fillFields'), type: 'warning' });
       return;
     }
 
     setLoading(true);
     try {
       await login({ email, password });
+      showToast({ message: t('common.success'), type: 'success' });
     } catch (error: any) {
       const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
-      Alert.alert('Login Failed', message);
+      showToast({ message, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -44,163 +50,154 @@ const LoginScreen = () => {
 
   return (
     <Layout>
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" />
-        <View style={styles.headerContainer}>
-           <View style={[styles.logoRing, { borderColor: colors.primary + '30', backgroundColor: colors.primary + '10' }]}>
-             <ArrowRight color={colors.primary} size={26} strokeWidth={2} />
-           </View>
-           <Text style={[styles.brandTitle, { color: '#fff' }]}>Med<Text style={[styles.brandTitleBold, { color: colors.primary }]}>Point</Text></Text>
-           <Text style={[styles.welcomeText, { color: '#fff' }]}>Welcome Back</Text>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
+      >
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
+
+        <View style={styles.contentGroup}>
+          <View style={styles.headerContainer}>
+            <Logo size="medium" />
+            <Text style={[styles.welcomeText, { color: colors.text }]}>{t('auth.welcomeBack')}</Text>
+          </View>
+
+          <GlassCard style={styles.formCard}>
+            <Text style={[styles.cardSubtitle, { color: isDark ? '#94a3b8' : colors.secondaryText }]}>
+              {t('auth.signInDesc')}
+            </Text>
+
+            <View style={styles.inputSection}>
+              <Input
+                label={t('auth.email')}
+                placeholder="name@email.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+              />
+              <Input
+                label={t('auth.password')}
+                placeholder="••••••••"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+              />
+
+              <TouchableOpacity
+                style={styles.forgotBtn}
+                onPress={() => navigation.navigate('ForgotPassword')}
+              >
+                <Text style={[styles.forgotText, { color: colors.primary }]}>{t('auth.forgotPassword')}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Button
+              title={loading ? t('auth.signingIn') : t('auth.signInBtn')}
+              icon={<ArrowRight color="#fff" size={20} />}
+              onPress={handleLogin}
+              disabled={loading}
+            />
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.divider} />
+              <Text style={styles.dividerText}>OR</Text>
+              <View style={styles.divider} />
+            </View>
+
+            <SocialLogins />
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>{t('auth.newHere')}</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                <Text style={[styles.link, { color: colors.primary }]}>{t('auth.createAccount')}</Text>
+              </TouchableOpacity>
+            </View>
+          </GlassCard>
         </View>
-
-        <GlassCard style={styles.formCard}>
-          <Text style={styles.cardSubtitle}>Sign in to access your medical dashboard.</Text>
-          
-          <View style={styles.inputSection}>
-            <Input 
-              label="Email Address" 
-              placeholder="doctor@medpoint.com" 
-              keyboardType="email-address" 
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-            />
-            <Input 
-              label="Password" 
-              placeholder="••••••••" 
-              secureTextEntry 
-              value={password}
-              onChangeText={setPassword}
-            />
-
-            <TouchableOpacity 
-              style={styles.forgotBtn}
-              onPress={() => navigation.navigate('ForgotPassword')}
-            >
-              <Text style={[styles.forgotText, { color: colors.primary }]}>Forgot password?</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Button 
-            variant="premium"
-            title={loading ? "Checking..." : "Secure Sign In"} 
-            icon={<ArrowRight color="#fff" size={20} strokeWidth={1.5} />}
-            onPress={handleLogin} 
-            disabled={loading}
-          />
-
-          <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.dividerText}>QUICK LOGIN</Text>
-            <View style={styles.divider} />
-          </View>
-
-          <SocialLogins />
-
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>New here? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={[styles.link, { color: colors.primary }]}>Join MedPoint</Text>
-            </TouchableOpacity>
-          </View>
-        </GlassCard>
-      </View>
+      </ScrollView>
     </Layout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
     justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  contentGroup: {
+    width: '100%',
+    alignItems: 'center',
   },
   headerContainer: {
     alignItems: 'center',
-    marginBottom: height < 700 ? 10 : 20,
-  },
-  logoRing: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(99, 102, 241, 0.08)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.2)',
-    marginBottom: 6,
-  },
-  brandTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '300',
-    letterSpacing: 1,
-  },
-  brandTitleBold: {
-    fontWeight: '800',
-    color: '#6366f1',
+    marginBottom: 20,
   },
   welcomeText: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: '700',
-    marginTop: 2,
+    fontSize: 28,
+    fontWeight: '800',
+    marginTop: 12,
+    letterSpacing: -0.5,
   },
   formCard: {
     borderRadius: 30,
-    paddingVertical: height < 700 ? 15 : 25,
+    paddingVertical: 24,
     paddingHorizontal: 20,
+    marginBottom: 20,
   },
   cardSubtitle: {
-    color: '#94a3b8',
-    fontSize: 13,
+    fontSize: 14,
     textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: height < 700 ? 10 : 15,
+    lineHeight: 20,
+    marginBottom: 24,
   },
   inputSection: {
     marginBottom: 10,
   },
   forgotBtn: {
     alignSelf: 'flex-end',
-    marginTop: -5,
-    marginBottom: 5,
+    marginTop: -8,
+    marginBottom: 16,
+    padding: 4,
   },
   forgotText: {
-    color: '#6366f1',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: height < 700 ? 10 : 15,
+    marginVertical: 24,
   },
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(148, 163, 184, 0.1)',
   },
   dividerText: {
-    color: '#475569',
-    fontSize: 9,
+    color: '#94a3b8',
+    fontSize: 10,
     fontWeight: '800',
-    marginHorizontal: 12,
-    letterSpacing: 1,
+    marginHorizontal: 16,
+    letterSpacing: 1.5,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: height < 700 ? 10 : 15,
+    marginTop: 24,
   },
   footerText: {
     color: '#64748b',
-    fontSize: 13,
+    fontSize: 14,
+    fontWeight: '500',
   },
   link: {
-    color: '#6366f1',
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '800',
   },
 });
 

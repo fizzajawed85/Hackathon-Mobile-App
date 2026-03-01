@@ -1,41 +1,76 @@
-import { View, StyleSheet, Dimensions, Platform, StatusBar } from 'react-native';
+import * as RN from 'react-native';
+import { View, StyleSheet, Dimensions, StatusBar, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
+import React, { memo } from 'react';
 
 const { width, height } = Dimensions.get('window');
 
 interface LayoutProps {
   children: React.ReactNode;
+  includeBottomSafeArea?: boolean;
+  avoidKeyboard?: boolean;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const BackgroundBlobs = memo(({ isDark, colors }: { isDark: boolean, colors: any }) => (
+  <>
+    {/* Background Gradients (Blobs) */}
+    <View style={[styles.blob1, { opacity: isDark ? 0.75 : 0.45 }]}>
+      <LinearGradient
+        colors={[isDark ? '#4338ca' + '80' : '#6366f1' + '50', 'transparent']}
+        style={styles.gradientBlob}
+      />
+    </View>
+
+    <View style={[styles.blob2, { opacity: isDark ? 0.75 : 0.45 }]}>
+      <LinearGradient
+        colors={[isDark ? '#3730a3' + '70' : '#4f46e5' + '40', 'transparent']}
+        style={styles.gradientBlob}
+      />
+    </View>
+  </>
+));
+
+const Layout: React.FC<LayoutProps> = ({
+  children,
+  includeBottomSafeArea = true,
+  avoidKeyboard = true
+}) => {
   const { colors, isDark } = useTheme();
+
+  const content = (
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: 'transparent' }]}
+      edges={includeBottomSafeArea ? ['top', 'bottom'] : ['top']}
+    >
+      <View style={styles.content}>
+        {children}
+      </View>
+    </SafeAreaView>
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      
-      {/* Background Gradients (Blobs) */}
-      <View style={[styles.blob1, { opacity: isDark ? 0.6 : 0.2 }]}>
-        <LinearGradient
-          colors={[colors.primary + '60', 'transparent']}
-          style={styles.gradientBlob}
-        />
-      </View>
-      
-      <View style={[styles.blob2, { opacity: isDark ? 0.6 : 0.2 }]}>
-        <LinearGradient
-          colors={[isDark ? 'rgba(30, 41, 59, 0.4)' : colors.primary + '20', 'transparent']}
-          style={styles.gradientBlob}
-        />
-      </View>
+      <StatusBar
+        barStyle={isDark ? "light-content" : "dark-content"}
+        translucent
+        backgroundColor="transparent"
+      />
 
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <View style={styles.content}>
-          {children}
-        </View>
-      </SafeAreaView>
+      <BackgroundBlobs isDark={isDark} colors={colors} />
+
+      {avoidKeyboard ? (
+        <RN.KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={0}
+        >
+          {content}
+        </RN.KeyboardAvoidingView>
+      ) : (
+        content
+      )}
     </View>
   );
 };
@@ -50,7 +85,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 0, // Removed global padding to let screens manage their own spacing
+    paddingHorizontal: 0,
     zIndex: 10,
   },
   blob1: {

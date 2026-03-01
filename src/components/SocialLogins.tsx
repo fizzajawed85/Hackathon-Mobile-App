@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Facebook, Linkedin, Github } from 'lucide-react-native';
+import { useTheme } from '../context/ThemeContext';
 
 import Svg, { Path } from 'react-native-svg';
 
@@ -26,26 +27,34 @@ const GoogleIcon = () => (
 );
 
 const SocialLogins = () => {
+  const { colors, isDark } = useTheme();
+  
   const socialButtons = [
     { icon: GoogleIcon, label: 'Google' },
     { icon: Facebook, color: '#1877f2', label: 'Facebook' },
     { icon: Linkedin, color: '#0a66c2', label: 'LinkedIn' },
-    { icon: Github, color: '#fff', label: 'GitHub' },
+    { icon: Github, color: isDark ? '#fff' : '#000', label: 'GitHub' },
   ];
 
   return (
     <View style={styles.container}>
       <View style={styles.dividerContainer}>
-        <View style={styles.line} />
-        <Text style={styles.dividerText}>SECURE SOCIAL LOGIN</Text>
-        <View style={styles.line} />
+        <View style={[styles.line, { backgroundColor: isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(100, 116, 139, 0.15)' }]} />
+        <Text style={[styles.dividerText, { color: isDark ? '#64748b' : '#94a3b8' }]}>OR CONTINUE WITH</Text>
+        <View style={[styles.line, { backgroundColor: isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(100, 116, 139, 0.15)' }]} />
       </View>
 
       <View style={styles.grid}>
         {socialButtons.map((social) => (
           <TouchableOpacity
             key={social.label}
-            style={styles.socialBtn}
+            style={[
+              styles.socialBtn,
+              { 
+                backgroundColor: isDark ? 'rgba(30, 41, 59, 0.3)' : 'rgba(241, 245, 249, 0.8)',
+                borderColor: isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(100, 116, 139, 0.2)',
+              }
+            ]}
             activeOpacity={0.7}
           >
             {social.label === 'Google' ? (
@@ -53,8 +62,8 @@ const SocialLogins = () => {
             ) : (
               <social.icon 
                 size={20} 
-                color={social.label === 'GitHub' ? '#fff' : (social as any).color} 
-                strokeWidth={2.5}
+                color={social.label === 'GitHub' ? (isDark ? '#fff' : '#000') : (social as any).color} 
+                strokeWidth={2}
               />
             )}
           </TouchableOpacity>
@@ -66,38 +75,34 @@ const SocialLogins = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 16,
+    marginTop: 8,
     marginBottom: 4,
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 20,
   },
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(71, 85, 105, 0.3)', // slate-700/30
   },
   dividerText: {
-    marginHorizontal: 12,
-    color: '#94a3b8', // slate-400
+    marginHorizontal: 16,
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 1.5,
   },
   grid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     gap: 12,
   },
   socialBtn: {
-    flex: 1,
-    height: 52,
-    backgroundColor: 'rgba(30, 41, 59, 0.2)', // slate-800/20
-    borderRadius: 14,
+    width: 60,
+    height: 60,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(71, 85, 105, 0.3)', // slate-700/30
     alignItems: 'center',
     justifyContent: 'center',
   },
