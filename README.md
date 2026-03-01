@@ -17,8 +17,14 @@ A premium medical management mobile application built with **React Native** and 
 
 ### 🏥 Healthcare Management
 - **Appointment Booking**: Select specialists, view availability, and book slots with a modern calendar interface.
-- **Medical Records**: Upload lab reports or prescriptions with support for camera/gallery attachments.
-- **Visit History**: Keep track of upcoming and past medical consultations.
+- **Persistent History**: All past visits and consultations are saved and accessible in the 'Visits' tab.
+- **Medical Records**: 
+    - Upload lab reports or prescriptions with camera/gallery attachments.
+    - **Download Support**: Save medical documents and prescriptions directly to your device.
+- **Health Dashboard**: Real-time tracking of:
+    - 👣 **Step Counter**: Monitor your daily activity.
+    - 🌙 **Sleep Tracking**: Keep track of your rest cycles.
+    - 💓 **Vital Signs**: BPM and BP snapshot summaries.
 
 ### 💓 Health Scanners (Tech Demo)
 - **Heart Rate Monitor**: Pulse analysis using camera and flash.
